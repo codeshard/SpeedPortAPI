@@ -19,7 +19,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM python:3.12-slim-bookworm
 
-COPY --from=builder --chown=app:app /speedport /speedport
+RUN groupadd -g 10001 speedport && \
+    useradd -u 10000 -g speedport speedport
+
+USER speedport:speedport
+
+COPY --from=builder --chown=speedport:speedport /speedport /speedport
 
 ENV PATH="/speedport/.venv/bin:$PATH"
 
