@@ -1,4 +1,5 @@
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+LABEL org.opencontainers.image.source="https://github.com/codeshard/SpeedPortAPI"
 
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1 \
@@ -22,4 +23,4 @@ COPY --from=builder --chown=app:app /speedport /speedport
 
 ENV PATH="/speedport/.venv/bin:$PATH"
 
-CMD ["fastapi", "dev", "--host", "0.0.0.0", "/speedport/app"]
+CMD ["fastapi", "prod", "--host", "0.0.0.0", "/speedport/app"]
