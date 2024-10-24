@@ -56,7 +56,9 @@ async def get_status(human_readable: bool = False) -> DSLStatus:
     ]
 
     info_data = {field: get_field(request, field) for field in info_fields}
-    dsl_data = {field: get_field(request, field) for field in dsl_fields}
+    dsl_data = {
+        field: get_field(request, field, human_readable) for field in dsl_fields
+    }
     internet_data = {
         field: get_field(request, field, human_readable) for field in internet_fields
     }
