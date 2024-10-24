@@ -3,7 +3,7 @@ from fastapi.exceptions import HTTPException
 
 from app.core.settings import get_settings
 from app.core.utils import get_field, http_get_encrypted_json
-from app.status.models import DSLStatus, Information, InternetConnection, Link
+from app.status.models import WLAN, DSLLink, DSLStatus, Information, InternetConnection
 
 router = APIRouter()
 settings = get_settings()
@@ -27,25 +27,47 @@ async def get_status(human_readable: bool = False) -> DSLStatus:
         )
     info_data = {}
     dsl_data = {}
-    link_data = {}
     internet_data = {}
-    info_fields = ["device_name", "firmware_version", "serial_number", "modem_id"]
-    dsl_fields = ["router_state", "days_online"]
-    link_fields = ["dsl_link_status", "dsl_downstream", "dsl_upstream"]
+    wlan_data = {}
+    info_fields = [
+        "device_name",
+        "factorydefault",
+        "router_state",
+        "firmware_version",
+        "serial_number",
+        "modem_id",
+    ]
+    dsl_fields = [
+        "dsl_link_status",
+        "ap_mode",
+        "onlinestatus",
+        "days_online",
+        "time_online",
+        "inet_uptime",
+        "dsl_downstream",
+        "dsl_upstream",
+    ]
     internet_fields = ["inet_download", "inet_upload", "dsl_pop"]
+    wlan_fields = [
+        "use_wlan",
+        "use_wps",
+        "wlan_ssid",
+        "wlan_5ghz_ssid",
+    ]
 
     info_data = {field: get_field(request, field) for field in info_fields}
-    dsl_data = {field: get_field(request, field) for field in dsl_fields}
-    link_data = {
-        field: get_field(request, field, human_readable) for field in link_fields
+    dsl_data = {
+        field: get_field(request, field, human_readable) for field in dsl_fields
     }
     internet_data = {
         field: get_field(request, field, human_readable) for field in internet_fields
     }
+    wlan_data = {field: get_field(request, field) for field in wlan_fields}
 
     return DSLStatus(
         **dsl_data,
-        info=Information(**info_data),
-        link=Link(**link_data),
-        internet=InternetConnection(**internet_data),
+        information=Information(**info_data),
+        dsl_link=DSLLink(**dsl_data),
+        internet_connection=InternetConnection(**internet_data),
+        wlan=WLAN(**wlan_data),
     )
