@@ -16,7 +16,9 @@ settings = get_settings()
     status_code=status.HTTP_200_OK,
     response_model=list[Device],
 )
-async def get_device_list() -> list[Device]:
+async def get_device_list(
+    connected: bool = True, human_readable: bool = False
+) -> list[Device]:
     host = settings.speedport_host
     key = settings.default_key
     request, err = await http_get_encrypted_json(
@@ -44,7 +46,9 @@ async def get_device_list() -> list[Device]:
         "mdevice_gua_ipv6",
     ]
     devices = [
-        {field: get_field(device, field) for field in device_fields}
+        {field: get_field(device, field, human_readable) for field in device_fields}
         for device in device_list
     ]
-    return devices
+    if connected:
+        devices = [device for device in devices if device["mdevice_connected"] == "1"]
+    return sorted(devices, key=lambda d: d["id"])
