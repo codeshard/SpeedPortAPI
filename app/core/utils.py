@@ -5,7 +5,14 @@ import httpx
 import orjson
 from Crypto.Cipher import AES
 
-BPS_FIELD = ["dsl_downstream", "dsl_upstream", "inet_download", "inet_upload"]
+BPS_FIELD = [
+    "dsl_downstream",
+    "dsl_upstream",
+    "inet_download",
+    "inet_upload",
+    "mdevice_downspeed",
+    "mdevice_upspeed",
+]
 HTTP_TIMEOUT = 5
 MAX_RETRIES = 3
 RETRY_WAIT = 3
