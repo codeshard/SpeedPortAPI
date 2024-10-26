@@ -10,8 +10,8 @@ settings = get_settings()
 
 
 @router.get(
-    "",
-    tags=["devices"],
+    "/devices",
+    tags=["router"],
     summary="Get Device List",
     status_code=status.HTTP_200_OK,
     response_model=list[Device],
