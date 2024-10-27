@@ -173,6 +173,7 @@ dependencies = [
     { name = "pydantic-extra-types" },
     { name = "pydantic-settings" },
     { name = "pyhstr" },
+    { name = "python-dotenv" },
 ]
 
 [package.dev-dependencies]
@@ -193,6 +194,7 @@ requires-dist = [
     { name = "pydantic-extra-types", specifier = ">=2.9.0" },
     { name = "pydantic-settings", specifier = ">=2.6.0" },
     { name = "pyhstr", specifier = ">=0.5.2" },
+    { name = "python-dotenv", specifier = ">=1.0.1" },
 ]
 
 [package.metadata.requires-dev]
