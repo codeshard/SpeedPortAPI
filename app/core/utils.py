@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import logging.config
 
 import hishel
 import httpx
@@ -8,6 +10,9 @@ from Crypto.Cipher import AES
 from app.core.settings import get_settings
 
 settings = get_settings()
+logging.config.dictConfig(settings.logging_config)
+logger = logging.getLogger("httpx")
+
 
 BPS_FIELD = [
     "dsl_downstream",
@@ -116,7 +121,6 @@ async def get_encrypted_json(path: str, params: dict[str] = None):
     ) as client:
         for attempt in range(settings.http_max_retries + 1):
             try:
-                # Send the GET request
                 response = await client.get(
                     f"{settings.speedport_host}{path}", params=params, headers=headers
                 )
@@ -132,26 +136,26 @@ async def get_encrypted_json(path: str, params: dict[str] = None):
                         break
                     except (ValueError, orjson.JSONDecodeError) as e:
                         error_msg = f"Decryption or JSON parsing failed: {e}"
-                        print(error_msg)
+                        logger.error(error_msg)
                         continue
 
             except httpx.HTTPStatusError as e:
                 error_msg = (
                     f"HTTP error occurred: {e.response.status_code} - {e.response.text}"
                 )
-                print(error_msg)
+                logger.error(error_msg)
 
             except httpx.RequestError as e:
                 error_msg = f"Request error occurred: {e}"
-                print(error_msg)
+                logger.error(error_msg)
 
             if attempt < settings.http_max_retries:
-                print(
+                logger.info(
                     f"Retry {attempt + 1}/{settings.http_max_retries} in {settings.http_retry_wait} seconds..."
                 )
                 await asyncio.sleep(settings.http_retry_wait)
             else:
-                print("Maximum number of retries exceeded, giving up")
+                logger.error("Maximum number of retries exceeded, giving up")
                 break
 
     return res, error_msg

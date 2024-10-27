@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import Depends, FastAPI
 from fastapi.responses import ORJSONResponse
 
@@ -9,11 +7,6 @@ from app.health.routers import router as health_router
 from app.router.routers import router as router_router
 
 settings = get_settings()
-
-
-logging.config.dictConfig(settings.logging_config)
-
-# logger = logging.getLogger(__name__)
 
 app = FastAPI(
     debug=settings.debug,
