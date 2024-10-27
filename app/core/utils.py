@@ -5,6 +5,10 @@ import httpx
 import orjson
 from Crypto.Cipher import AES
 
+from app.core.settings import get_settings
+
+settings = get_settings()
+
 BPS_FIELD = [
     "dsl_downstream",
     "dsl_upstream",
@@ -13,44 +17,6 @@ BPS_FIELD = [
     "mdevice_downspeed",
     "mdevice_upspeed",
 ]
-HTTP_TIMEOUT = 5
-MAX_RETRIES = 3
-RETRY_WAIT = 3
-
-
-def decrypt_response(key_hex: str, encrypted_data_hex: str) -> str:
-    """
-    Decrypts the given encrypted data using AES-CCM mode.
-
-    Args:
-        key_hex (str): Hexadecimal string of the key.
-        encrypted_data_hex (str): Hexadecimal string of the encrypted data (ciphertext + tag).
-
-    Returns:
-        str: Decrypted data as a UTF-8 string.
-
-    Raises:
-        ValueError: If decryption fails due to wrong key or tampered data.
-    """
-
-    try:
-        key = bytes.fromhex(key_hex)
-        nonce = key[:8]
-
-        ciphertext_and_tag = bytes.fromhex(encrypted_data_hex)
-        ciphertext = ciphertext_and_tag[:-16]
-        tag = ciphertext_and_tag[-16:]
-
-        cipher = AES.new(key, AES.MODE_CCM, nonce=nonce)
-
-        decrypted_data = cipher.decrypt_and_verify(ciphertext, tag)
-
-        return decrypted_data.decode("utf-8")
-
-    except ValueError as e:
-        raise ValueError(
-            "Decryption failed. Possible wrong key or tampered data."
-        ) from e
 
 
 def get_field(
@@ -82,15 +48,47 @@ def get_field(
     return field.get("varvalue")
 
 
-async def http_get_encrypted_json(
-    encryption_key: str, url: str, params: dict[str] = None
-):
+def decrypt_response(encrypted_data_hex: str) -> str:
+    """
+    Decrypts the given encrypted data using AES-CCM mode.
+
+    Args:
+        key_hex (str): Hexadecimal string of the key.
+        encrypted_data_hex (str): Hexadecimal string of the encrypted data (ciphertext + tag).
+
+    Returns:
+        str: Decrypted data as a UTF-8 string.
+
+    Raises:
+        ValueError: If decryption fails due to wrong key or tampered data.
+    """
+
+    try:
+        hex_key = settings.hex_key
+        key = bytes.fromhex(hex_key)
+        nonce = key[:8]
+
+        ciphertext_and_tag = bytes.fromhex(encrypted_data_hex)
+        ciphertext = ciphertext_and_tag[:-16]
+        tag = ciphertext_and_tag[-16:]
+
+        cipher = AES.new(key, AES.MODE_CCM, nonce=nonce)
+
+        decrypted_data = cipher.decrypt_and_verify(ciphertext, tag)
+
+        return decrypted_data.decode("utf-8")
+
+    except ValueError as e:
+        raise ValueError(
+            "Decryption failed. Possible wrong key or tampered data."
+        ) from e
+
+
+async def get_encrypted_json(path: str, params: dict[str] = None):
     """
     Makes an asynchronous GET request, decrypts the response if necessary, and parses the JSON.
 
     Args:
-        encryption_key (str): Encryption key used to decrypt the response.
-        url (str): The URL to send the GET request to.
         params (dict): Optional query parameters to include in the request.
 
     Returns:
@@ -112,12 +110,16 @@ async def http_get_encrypted_json(
     )
 
     async with hishel.AsyncCacheClient(
-        controller=cache_controller, transport=cache_transport, timeout=HTTP_TIMEOUT
+        controller=cache_controller,
+        transport=cache_transport,
+        timeout=settings.http_timeout,
     ) as client:
-        for attempt in range(MAX_RETRIES + 1):
+        for attempt in range(settings.http_max_retries + 1):
             try:
                 # Send the GET request
-                response = await client.get(url, params=params, headers=headers)
+                response = await client.get(
+                    f"{settings.speedport_host}{path}", params=params, headers=headers
+                )
                 response.raise_for_status()
 
                 try:
@@ -125,7 +127,7 @@ async def http_get_encrypted_json(
                     break
                 except ValueError:
                     try:
-                        decrypted = decrypt_response(encryption_key, response.text)
+                        decrypted = decrypt_response(response.text)
                         res = orjson.loads(decrypted)
                         break
                     except (ValueError, orjson.JSONDecodeError) as e:
@@ -143,9 +145,11 @@ async def http_get_encrypted_json(
                 error_msg = f"Request error occurred: {e}"
                 print(error_msg)
 
-            if attempt < MAX_RETRIES:
-                print(f"Retry {attempt + 1}/{MAX_RETRIES} in {RETRY_WAIT} seconds...")
-                await asyncio.sleep(RETRY_WAIT)
+            if attempt < settings.http_max_retries:
+                print(
+                    f"Retry {attempt + 1}/{settings.http_max_retries} in {settings.http_retry_wait} seconds..."
+                )
+                await asyncio.sleep(settings.http_retry_wait)
             else:
                 print("Maximum number of retries exceeded, giving up")
                 break
