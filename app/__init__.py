@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from fastapi import Depends, FastAPI
 from fastapi.responses import ORJSONResponse
@@ -11,14 +10,14 @@ from app.router.routers import router as router_router
 
 settings = get_settings()
 
-logging.basicConfig(
-    stream=sys.stdout, level=logging.DEBUG if settings.debug else logging.INFO
-)
-logging.getLogger("hishel.controller").setLevel(settings.debug_level)
+
+logging.config.dictConfig(settings.logging_config)
+
+# logger = logging.getLogger(__name__)
 
 app = FastAPI(
     debug=settings.debug,
-    title=settings.title,
+    title="SpeedPort API",
     version=settings.version,
     dependencies=[Depends(get_settings)],
     default_response_class=ORJSONResponse,
