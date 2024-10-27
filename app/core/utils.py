@@ -58,7 +58,6 @@ def decrypt_response(encrypted_data_hex: str) -> str:
     Decrypts the given encrypted data using AES-CCM mode.
 
     Args:
-        key_hex (str): Hexadecimal string of the key.
         encrypted_data_hex (str): Hexadecimal string of the encrypted data (ciphertext + tag).
 
     Returns:
