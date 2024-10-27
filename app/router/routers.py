@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
 
 from app.core.settings import get_settings
-from app.core.utils import get_field, http_get_encrypted_json
+from app.core.utils import get_encrypted_json, get_field
 from app.router.models import InfoModel, RouterModel, StatusModel
 
 router = APIRouter()
@@ -17,13 +17,11 @@ settings = get_settings()
     response_model=StatusModel,
 )
 async def get_status(human_readable: bool = False) -> StatusModel:
-    host = settings.speedport_host
-    key = settings.default_key
-    request, err = await http_get_encrypted_json(key, f"http://{host}/data/Status.json")
+    request, err = await get_encrypted_json(path="data/Status.json")
     if not request:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get status from {host}",
+            detail=f"Failed to get status from {settings.speedport_host}",
         )
     router_fields = [
         "device_name",
@@ -58,13 +56,11 @@ async def get_status(human_readable: bool = False) -> StatusModel:
     response_model=InfoModel,
 )
 async def get_router(human_readable: bool = False) -> InfoModel:
-    host = settings.speedport_host
-    key = settings.default_key
-    request, err = await http_get_encrypted_json(key, f"http://{host}/data/Router.json")
+    request, err = await get_encrypted_json(path="data/Router.json")
     if not request:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get status from {host}",
+            detail=f"Failed to get status from {settings.speedport_host}",
         )
     router_fields = [
         "device_name",
