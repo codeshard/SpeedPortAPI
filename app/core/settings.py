@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import computed_field
 from pydantic.networks import AnyUrl
@@ -11,14 +11,14 @@ class Settings(BaseSettings):
 
     debug: bool = True
     version: str = "0.1.0"
-    log_level: str
+    log_level: str = "INFO"
 
-    speedport_host: AnyUrl
-    speedport_password: str | None
+    speedport_host: AnyUrl = "http://192.168.2.1"
+    speedport_password: Optional[str]
 
-    http_timeout: int
-    http_max_retries: int
-    http_retry_wait: int
+    http_timeout: int = 5
+    http_max_retries: int = 3
+    http_retry_wait: int = 3
 
     hex_key: str = "cdc0cac1280b516e674f0057e4929bca84447cca8425007e33a88a5cf598a190"
 
