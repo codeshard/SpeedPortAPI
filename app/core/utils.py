@@ -53,7 +53,7 @@ def get_field(
     return field.get("varvalue")
 
 
-def decrypt_response(encrypted_data_hex: str) -> str:
+def decrypt_response(hex_key: str, encrypted_data_hex: str) -> str:
     """
     Decrypts the given encrypted data using AES-CCM mode.
 
@@ -75,11 +75,8 @@ def decrypt_response(encrypted_data_hex: str) -> str:
         ciphertext_and_tag = bytes.fromhex(encrypted_data_hex)
         ciphertext = ciphertext_and_tag[:-16]
         tag = ciphertext_and_tag[-16:]
-
         cipher = AES.new(key, AES.MODE_CCM, nonce=nonce)
-
         decrypted_data = cipher.decrypt_and_verify(ciphertext, tag)
-
         return decrypted_data.decode("utf-8")
 
     except ValueError as e:
@@ -130,7 +127,7 @@ async def get_encrypted_json(path: str, params: dict[str] = None):
                     break
                 except ValueError:
                     try:
-                        decrypted = decrypt_response(response.text)
+                        decrypted = decrypt_response(settings.hex_key, response.text)
                         res = orjson.loads(decrypted)
                         break
                     except (ValueError, orjson.JSONDecodeError) as e:

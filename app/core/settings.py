@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     http_max_retries: int
     http_retry_wait: int
 
-    hex_key: str
+    hex_key: str = "cdc0cac1280b516e674f0057e4929bca84447cca8425007e33a88a5cf598a190"
 
     @computed_field
     @property
