@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     speedport_host: AnyUrl = "http://192.168.2.1"
-    speedport_password: Optional[str]
+    speedport_password: Optional[str] = None
 
     http_timeout: int = 5
     http_max_retries: int = 3
