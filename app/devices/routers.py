@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 from fastapi.exceptions import HTTPException
 
 from app.core.settings import get_settings
-from app.core.utils import get_field, http_get_encrypted_json
+from app.core.utils import get_encrypted_json, get_field
 from app.devices.models import Device
 
 router = APIRouter()
@@ -10,8 +10,8 @@ settings = get_settings()
 
 
 @router.get(
-    "",
-    tags=["devices"],
+    "/devices",
+    tags=["router"],
     summary="Get Device List",
     status_code=status.HTTP_200_OK,
     response_model=list[Device],
@@ -19,15 +19,11 @@ settings = get_settings()
 async def get_device_list(
     connected: bool = True, human_readable: bool = False
 ) -> list[Device]:
-    host = settings.speedport_host
-    key = settings.default_key
-    request, err = await http_get_encrypted_json(
-        key, f"http://{host}/data/DeviceList.json"
-    )
+    request, err = await get_encrypted_json(path="data/DeviceList.json")
     if not request:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get status from {host}",
+            detail=f"Failed to get status from {settings.speedport_host}",
         )
     device_list = [
         device["varvalue"] for device in request if device["varid"] == "addmdevice"
