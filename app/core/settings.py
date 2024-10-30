@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict()
 
     debug: bool = True
     version: str = "0.1.0"
@@ -80,6 +80,6 @@ class Settings(BaseSettings):
         }
 
 
-@lru_cache
+@lru_cache(maxsize=1)
 def get_settings():
     return Settings()
