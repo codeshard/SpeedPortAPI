@@ -13,5 +13,5 @@ class Device(BaseModel):
     downspeed: int | float = Field(..., validation_alias="mdevice_downspeed")
     upspeed: int | float = Field(..., validation_alias="mdevice_upspeed")
     connected: bool = Field(..., validation_alias="mdevice_connected")
-    ipv4: IPvAnyAddress = Field(..., validation_alias="mdevice_ipv4")
-    ipv6: IPvAnyAddress = Field(..., validation_alias="mdevice_gua_ipv6")
+    ipv4: IPvAnyAddress | str = Field(..., validation_alias="mdevice_ipv4")
+    ipv6: IPvAnyAddress | str = Field(..., validation_alias="mdevice_gua_ipv6")
