@@ -28,4 +28,4 @@ dev-dependencies = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-vv --cov=app"
+addopts = "-vv --cov=app --cov-report=xml"
