@@ -68,17 +68,14 @@ def decrypt_response(hex_key: str, encrypted_data_hex: str) -> str:
     """
 
     try:
-        hex_key = settings.hex_key
         key = bytes.fromhex(hex_key)
         nonce = key[:8]
-
         ciphertext_and_tag = bytes.fromhex(encrypted_data_hex)
         ciphertext = ciphertext_and_tag[:-16]
         tag = ciphertext_and_tag[-16:]
         cipher = AES.new(key, AES.MODE_CCM, nonce=nonce)
         decrypted_data = cipher.decrypt_and_verify(ciphertext, tag)
         return decrypted_data.decode("utf-8")
-
     except ValueError as e:
         raise ValueError(
             "Decryption failed. Possible wrong key or tampered data."
