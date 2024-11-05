@@ -47,4 +47,4 @@ async def get_device_list(
     ]
     if connected:
         devices = [device for device in devices if device["mdevice_connected"] == "1"]
-    return sorted(devices, key=lambda d: d["id"])
+    return sorted(devices, key=lambda d: int(d["id"]))

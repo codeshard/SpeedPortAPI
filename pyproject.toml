@@ -1,8 +1,8 @@
 [project]
-name = "fastapi-speedport"
+name = "SpeedPortAPI"
+description = ""
 version = "0.1.0"
 requires-python = ">=3.12"
-description = ""
 readme = "README.md"
 authors = [{ name = "Ozkar L. Garcell", email = "ozkar.garcell@gmail.com" }]
 dependencies = [
@@ -22,4 +22,10 @@ dev-dependencies = [
     "ruff>=0.7.0",
     "ruff-lsp>=0.0.58",
     "uvicorn>=0.32.0",
+    "pytest>=8.3.3",
+    "pytest-cov>=6.0.0",
+    "respx>=0.21.1",
 ]
+
+[tool.pytest.ini_options]
+addopts = "-vv --cov=app --cov-report=xml"
