@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     version: str = "0.1.0"
     log_level: str = "INFO"
 
-    speedport_host: AnyUrl = "http://192.168.2.1"
+    speedport_host: AnyUrl = "http://192.168.1.1"
     speedport_password: Optional[str] = None
 
     http_timeout: int = 5
