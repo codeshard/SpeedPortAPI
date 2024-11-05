@@ -22,4 +22,10 @@ dev-dependencies = [
     "ruff>=0.7.0",
     "ruff-lsp>=0.0.58",
     "uvicorn>=0.32.0",
+    "pytest>=8.3.3",
+    "pytest-cov>=6.0.0",
+    "respx>=0.21.1",
 ]
+
+[tool.pytest.ini_options]
+addopts = "-vv --cov=app"
