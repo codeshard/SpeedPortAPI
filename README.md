@@ -8,7 +8,7 @@
 
 [1]: <https://ghcr-badge.egpl.dev/codeshard/speedportapi/tags?trim=major>
 [2]: <https://ghcr-badge.egpl.dev/codeshard/speedportapi/latest_tag?trim=major&label=latest>
-[3]: <https://ghcr-badge.egpl.dev/codeshard/speedportapi/size>
+[3]: <https://ghcr-badge.egpl.dev/codeshard/speedportapi/size?tag=main>
 
 https://github.com/aaronk6/dsl-monitoring
 https://github.com/Andre0512/speedport-api
