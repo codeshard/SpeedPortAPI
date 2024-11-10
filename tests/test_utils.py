@@ -41,13 +41,45 @@ def test_get_field_non_numeric_varvalue():
         get_field(invalid_report, "dsl_downstream")
 
 
-def test_decrypt_response_success():
-    hex_key = "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+def generate_encrypted_data(hex_key, plaintext):
     key = bytes.fromhex(hex_key)
     nonce = key[:8]
     cipher = AES.new(key, AES.MODE_CCM, nonce=nonce)
-    plaintext = "Hello, world!"
     ciphertext, tag = cipher.encrypt_and_digest(plaintext.encode("utf-8"))
-    encrypted_data_hex = (ciphertext + tag).hex()
+    return (ciphertext + tag).hex()
+
+
+def tamper_data(data_hex):
+    return data_hex[:-1] + ("0" if data_hex[-1] != "0" else "1")
+
+
+def test_decrypt_response_success():
+    hex_key = "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+    plaintext = "Hello, world!"
+    encrypted_data_hex = generate_encrypted_data(hex_key, plaintext)
     result = decrypt_response(hex_key, encrypted_data_hex)
     assert result == plaintext
+
+
+def test_decrypt_response_incorrect_key():
+    hex_key = "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+    wrong_hex_key = "1000111122223333444455556666777788889999aaaabbbbccccddddeeeefff1"
+    plaintext = "Hello, World!"
+    encrypted_data_hex = generate_encrypted_data(hex_key, plaintext)
+
+    with pytest.raises(
+        ValueError, match="Decryption failed. Possible wrong key or tampered data."
+    ):
+        decrypt_response(wrong_hex_key, encrypted_data_hex)
+
+
+def test_decrypt_response_tampered_data():
+    hex_key = "0000111122223333444455556666777788889999aaaabbbbccccddddeeeeffff"
+    plaintext = "Hello, World!"
+    encrypted_data_hex = generate_encrypted_data(hex_key, plaintext)
+    tampered_data_hex = tamper_data(encrypted_data_hex)
+
+    with pytest.raises(
+        ValueError, match="Decryption failed. Possible wrong key or tampered data."
+    ):
+        decrypt_response(hex_key, tampered_data_hex)
